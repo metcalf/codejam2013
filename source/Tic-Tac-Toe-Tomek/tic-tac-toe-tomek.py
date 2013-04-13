@@ -4,9 +4,9 @@ import itertools
 
 def check_row(row):
     if "O" in row and not "X" in row:
-        return "O has won"
+        return "O won"
     elif "X" in row and not "O" in row:
-        return "X has won"
+        return "X won"
     else:
         return None
 
