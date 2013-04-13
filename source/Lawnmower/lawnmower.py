@@ -3,12 +3,15 @@ import numpy
 
 def solve_one(lawn):
     lawn = numpy.array(lawn)
+    print lawn
     height, width = lawn.shape
     for i in range(height):
         row = lawn[i,:]
         for j in range(width):
             val = lawn[i,j]
             col = lawn[:,j]
+            if val == 16:
+                import pdb; pdb.set_trace()
             if val < max(row) and val < max(col):
                 return False
 
@@ -31,7 +34,7 @@ def solution(infilename, outfilename):
         lawns.append([ [ int(entry) for entry in infile.readline().split(" ")] 
                        for i in range(rows) ])
 
-    for i, lawn in enumerate(lawns):
+    for i, lawn in enumerate(lawns[99:]):
         outval = "Case #%d: %s"%(i+1, "YES" if solve_one(lawn) else "NO")
         print outval
         outfile.write(outval)
