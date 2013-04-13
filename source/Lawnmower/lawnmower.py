@@ -32,7 +32,7 @@ def solution(infilename, outfilename):
                        for i in range(rows) ])
 
     for i, lawn in enumerate(lawns):
-        outval = "Case #%d: %s"%(i, "YES" if solve_one(lawn) else "NO")
+        outval = "Case #%d: %s"%(i+1, "YES" if solve_one(lawn) else "NO")
         print outval
         outfile.write(outval)
         outfile.write("\n")
