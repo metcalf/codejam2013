@@ -39,7 +39,7 @@ from lib import utils
 def main():
   """Main function for the input downloader script.
 
-  This script receives three positional arguments, the problem letter, the input
+  This script receives three positional arguments, the problem name, the input
   size and the submit id.
   """
   try:
@@ -78,11 +78,7 @@ def main():
     if len(args) != 3:
       raise error.OptionError('need 3 positional arguments')
 
-    # Check that the problem idenfier is valid.
-    problem_letter = args[0].upper()
-    if len(problem_letter) != 1 or not problem_letter.isupper():
-      raise error.OptionError('invalid problem {0}, must be one letter'.format(
-          problem_letter))
+    problem_name = args[0]
 
     # Check that the submit id is a valid identifier.
     id = args[2]
@@ -119,12 +115,12 @@ def main():
           'Reinitializing the contest might solve this error.\n'.format(e))
 
     # Calculate the problem index and check if it is inside the range.
-    problem_index = ord(problem_letter) - ord('A')
-    if problem_index < 0 or problem_index >= len(problems):
+    try:
+      problem_index = [p["name"] for p in problems].index(problem_name)
+    except ValueError:
       raise error.UserError(
-          'Cannot find problem {0}, there are only {1} problem(s).\n'.format(
-              problem_letter, len(problems)))
-
+          'Cannot find problem {0}.\n'.format(problem_name))
+    
     # Get the problem specification and the targeted I/O set from it.
     problem = problems[problem_index]
     io_set_name = args[1].lower()
@@ -160,7 +156,7 @@ def main():
     # Generate the input file name using the specified format and then return.
     try:
       input_basename = input_name_format.format(
-          problem=problem_letter, input=io_set_name, id=id)
+          problem=problem["name"], input=io_set_name, id=id)
       input_filename = os.path.normpath(os.path.join(data_directory,
                                                      input_basename))
     except KeyError as e:
@@ -171,8 +167,8 @@ def main():
 
     # Print message indicating that an input is going to be downloaded.
     print '-' * 79
-    print '{0} input for "{1} - {2}" at "{3}"'.format(
-        io_set['difficulty_name'].capitalize(), problem_letter, problem['name'],
+    print '{0} input for "{1}" at "{2}"'.format(
+        io_set['difficulty_name'].capitalize(), problem['name'],
         input_filename)
     print '-' * 79
 
@@ -208,7 +204,7 @@ def main():
       if not options.force and not can_download:
         raise error.UserError(
             'You cannot download {0}-{1}, it is already {2}.\n'.format(
-                problem_letter, io_set_name,
+                problem_name, io_set_name,
                 'solved' if input_public else ('submitted and the timer '
                                                'expired')))
 
@@ -222,7 +218,7 @@ def main():
         download_message = ('You will have {0} to submit your answer for '
                             '{1}-{2}.'.format(
                                 utils.FormatHumanTime(remaining_time),
-                                problem_letter, io_set_name))
+                                problem_name, io_set_name))
         utils.AskConfirmationOrDie(download_message, 'Download', options.force)
         print 'Downloading new input file.'
       else:
@@ -230,7 +226,7 @@ def main():
         # being downloaded, including the time left to solve it.
         remaining_time = problem_input_state.current_attempt
         print 'You still have {0} to submit your answer for {1}-{2}.'.format(
-            utils.FormatHumanTime(remaining_time), problem_letter, io_set_name)
+            utils.FormatHumanTime(remaining_time), problem_name, io_set_name)
         print 'Redownloading previous input file.'
     else:
       print 'Downloading practice input file.'

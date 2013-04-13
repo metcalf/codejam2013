@@ -39,7 +39,7 @@ from lib import utils
 def main():
   """Main function for the output submitter script.
 
-  This script receives three positional arguments, the problem letter, the
+  This script receives three positional arguments, the problem name, the
   input size and the submit id.
   """
   try:
@@ -105,11 +105,7 @@ def main():
       raise error.OptionError('need 3 positional arguments')
 
     # Check that the problem idenfier is valid.
-    problem_letter = args[0].upper()
-    if len(problem_letter) != 1 or not problem_letter.isupper():
-      raise error.OptionError(
-          'invalid problem {0}, must be one uppercase letter'.format(
-              problem_letter))
+    problem_name = args[0]
 
     # Check that the submit id is a valid identifier.
     id = args[2]
@@ -146,11 +142,11 @@ def main():
           'Reinitializing the contest might solve this error.\n'.format(e))
 
     # Calculate the problem index and check if it is inside the range.
-    problem_index = ord(problem_letter) - ord('A')
-    if problem_index < 0 or problem_index >= len(problems):
+    try:
+      problem_index = [p["name"] for p in problems].index(problem_name)
+    except ValueError:
       raise error.UserError(
-          'Cannot find problem {0}; there are only {1} problem(s).\n'.format(
-              problem_letter, len(problems)))
+          'Cannot find problem {0}.\n'.format(problem_name))
 
     # Get the problem specification and the targeted I/O set from it.
     problem = problems[problem_index]
@@ -197,7 +193,7 @@ def main():
     # Generate the output file name using the specified format and then return.
     try:
       output_basename = output_name_format.format(
-        problem=problem_letter, input=io_set_name, id=id)
+        problem=problem["name"], input=io_set_name, id=id)
       output_filename = os.path.normpath(os.path.join(data_directory,
                                                       output_basename))
     except KeyError as e:
@@ -215,7 +211,7 @@ def main():
           # Generate the source file name using the specified format and append
           # it to the source list.
           def_source_basename = source_name_format.format(
-              problem=problem_letter, input=io_set_name, id=id)
+              problem=problem["name"], input=io_set_name, id=id)
           def_source_filename = os.path.normpath(os.path.join(
               data_directory, def_source_basename))
           source_names.append(def_source_filename)
@@ -228,14 +224,14 @@ def main():
     # for the current operative system.
     if options.extra_sources is not None:
       for extra_source_format in options.extra_sources:
-        extra_source_file = extra_source_format.format(problem=problem_letter,
+        extra_source_file = extra_source_format.format(problem=problem["name"],
                                                        input=io_set_name, id=id)
         source_names.append(os.path.normpath(extra_source_file))
 
     # Print message indicating that an output is going to be submitted.
     print '-' * 79
-    print '{0} output for "{1} - {2}" at "{3}"'.format(
-      io_set['difficulty_name'].capitalize(), problem_letter, problem['name'],
+    print '{0} output for "{1}" at "{2}"'.format(
+      io_set['difficulty_name'].capitalize(), problem['name'],
       output_filename)
     print '-' * 79
 
@@ -269,13 +265,13 @@ def main():
       if not options.force and problem_input_state.current_attempt == -1:
         raise error.UserError(
             'You cannot submit {0}-{1}, the timer expired or you did not '
-            'download this input.\n'.format(problem_letter, io_set_name))
+            'download this input.\n'.format(problem["name"], io_set_name))
 
       # Ask for confirmation if user is trying to resubmit a non-public output.
       if not io_set_public and problem_input_state.submitted:
         submit_message = ('You already have submitted an output for {0}-{1}. '
                           'Resubmitting will override the previous one.'.format(
-                              problem_letter, io_set_name))
+                              problem["name"], io_set_name))
         utils.AskConfirmationOrDie(submit_message, 'Submit', options.force)
         print 'Submitting new output and source files.'
       else:
@@ -290,7 +286,7 @@ def main():
       submit_message = ('You did not include source code files for this '
                         'attempt. Submitting output files without source code '
                         'can lead to disqualification.'.format(
-                            problem_letter, io_set_name))
+                            problem["name"], io_set_name))
       utils.AskConfirmationOrDie(submit_message, 'Are you sure', False)
       print 'Submitting without source files.'
 
