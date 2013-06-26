@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import os
-import sys
 import subprocess
 
 from lib.helper import select_problem, select_io_set
@@ -27,4 +26,4 @@ def main():
     print "Input %s downloaded"%idx
 
 if __name__ == '__main__':
-  main()
+    main()

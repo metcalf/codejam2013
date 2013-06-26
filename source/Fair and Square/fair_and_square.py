@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 import sys
 import math
 import itertools
@@ -5,7 +7,6 @@ import random
 
 def is_palindrome(integer):
     strval = str(integer)
-
     return strval == strval[::-1]
 
 def solve_one(rng):
@@ -25,8 +26,7 @@ def solve_one(rng):
                 if val >= rng_start and val <= rng_end:
                     if is_palindrome(val**2):
                         cnt += 1
-                    else:
-                        invalid_cnt += 1
+                        print "%d %d"%(val, val**2)
     return cnt
 
 def solution(infilename, outfilename):
