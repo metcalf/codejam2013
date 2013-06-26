@@ -48,4 +48,5 @@ Icon
 .Trashes
 
 # Codejam specific
-cl-tool/config/current_config.py
+config/
+profiles/
